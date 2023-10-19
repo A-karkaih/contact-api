@@ -11,6 +11,7 @@ connectDb();
 app.use(express.json()); 
 
 app.use("/api/contacts", require("../mycontact-backend/routes/contactRoutes"));
+app.use("/api/users", require("../mycontact-backend/routes/usersRoutes"));
 
 app.use(errorHandler);
 
