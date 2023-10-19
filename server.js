@@ -1,4 +1,5 @@
 const express = require('express');
+const errorHandler = require('./cntrollers/middleware/errorHandler');
 
 const dotenv = require("dotenv").config();
 
@@ -9,6 +10,8 @@ const port = process.env.PORT || 5000;
 app.use(express.json()); 
 
 app.use("/api/contacts", require("../mycontact-backend/routes/contactRoutes"));
+
+app.use(errorHandler);
 
 
 
