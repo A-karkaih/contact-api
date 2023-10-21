@@ -3,18 +3,18 @@ const Contact = require("../models/contactModel");
 
 //@Desc Get all contacts
 //@route  Get /api/contacts
-//@access  public
+//@access  private
 
 const getContacts = asyncHandler(async (req, res) => {
-    const contacts =  await Contact.find();
 
+    const contacts = await Contact.find({ user_id: req.user.id });
     res.status(200).json(contacts);
 
 });
 
 //@Desc Create New Contact
 //@route  POST /api/contacts
-//@access  public
+//@access  private
 
 const createContact = asyncHandler(async (req, res) => {
 
@@ -32,16 +32,18 @@ const createContact = asyncHandler(async (req, res) => {
     const contact = await Contact.create({
         name,
         email,
-        phone
+        phone,
+        user_id: req.user.id,
     });
+   
 
     res.status(201).json(contact);
 
 });
 
-//@Desc Update contact  for id 
+//@Desc Update contact  for id
 //@route  PUT /api/contacts/:id
-//@access  public
+//@access  private
 
 const updateContact = asyncHandler(async (req, res) => {
     const contact = await Contact.findById(req.params.id);
@@ -50,6 +52,11 @@ const updateContact = asyncHandler(async (req, res) => {
 
         res.status(404);
         throw new Error("Contact Not Found! ");
+    }
+    if (contact.user_id.toString() !== req.user.id) {
+        res.status(403);
+        throw new Error("User dont have permission to update other user contacts!");
+
     }
     const updatedContact = await Contact.findByIdAndUpdate(
         req.params.id,
@@ -66,7 +73,7 @@ const updateContact = asyncHandler(async (req, res) => {
 
 //@Desc Delete contact for id
 //@route  DELETE /api/contacts/:id
-//@access  public
+//@access  private
 
 const deleteContact = asyncHandler( async (req, res) => {
 
@@ -78,14 +85,18 @@ const deleteContact = asyncHandler( async (req, res) => {
         throw new Error("Contact Not Found! ");
     }
 
-    else {
+    if (contact.user_id.toString() !== req.user.id) {
+        res.status(403);
+        throw new Error("User dont have permission to update other user contacts!");
+
+    }
 
         
 
         await Contact.deleteOne({ _id: req.params.id });
 
         res.status(200).json(contact);
-   }
+   
     
     
 
@@ -95,7 +106,7 @@ const deleteContact = asyncHandler( async (req, res) => {
 
 //@Desc Get all contacts
 //@route  Get /api/contacts/:id
-//@access  public
+//@access  private
 
 const getOneContact = asyncHandler(async (req, res) => {
 
